@@ -1,0 +1,39 @@
+﻿<Window x:Class="ElectricityConsumerApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ElectricityConsumerApp"
+        mc:Ignorable="d"
+        Title="Потребитель электроэнергии" Height="600" Width="1200" MinHeight="200" MinWidth="600"
+        Loaded="OnLoad"
+        SizeChanged="Window_SizeChanged">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="180"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <GroupBox Grid.Column="0">
+            <StackPanel>
+                <DataGrid Width="auto" AutoGenerateColumns="True" x:Name="consumerGrid" ItemsSource="{Binding}" ScrollViewer.CanContentScroll="True" 
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto" IsReadOnly="True">
+                </DataGrid>
+                <Label x:Name="resultCountLabel" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom"></Label>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Grid.Column="180" >
+            <StackPanel>
+                <Label Content="Фильтр" HorizontalAlignment="Center"></Label>
+                <Label Content="Фамилия:"></Label>
+                <TextBox x:Name="searchByLastNameTextBox" KeyDown="searchByLastNameTextBox_KeyDown"></TextBox>
+                <Button x:Name="findConsumersButton" AllowDrop="True" Content="Отобразить потребителей" Background="AliceBlue" Click="findConsumersButton_Click" Height="33" Margin="0 6 0 0"/>
+                <Button x:Name="addConsumerButton" AllowDrop="True" Content="Добавить потребителя" Background="AliceBlue" Click="addConsumerButton_Click" Height="33" Margin="0 50 0 0"/>
+                <Button x:Name="addElectricMeterButton" AllowDrop="True" Content="Добавить счётчик" Background="AliceBlue" Click="addElectricMeterButton_Click" Height="33"/>
+                <Button x:Name="showElectricMetersButton" AllowDrop="True" Content="Отобразить счётчики" Background="AliceBlue" Click="showElectricMetersButton_Click" Height="33"/>
+                <Button x:Name="addTestimonyButton" AllowDrop="True" Content="Добавить показание" Background="AliceBlue" Click="addTestimonyButton_Click" Height="33"/>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</Window>

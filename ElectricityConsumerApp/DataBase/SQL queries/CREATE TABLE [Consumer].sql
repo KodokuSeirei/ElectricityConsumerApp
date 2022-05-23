@@ -1,0 +1,11 @@
+CREATE TABLE [Consumer]
+(
+	ID INT PRIMARY KEY IDENTITY, 
+	LastName NVARCHAR(50) NOT NULL,
+	FirstName NVARCHAR(50) NOT NULL,
+	Patronymic NVARCHAR(50) NULL,
+	AddressID INT NULL
+
+	CONSTRAINT FK_Consumer_ConsumerAddress FOREIGN KEY (AddressID) REFERENCES [AddressesDirectory] (ID) ON UPDATE CASCADE,
+)
+

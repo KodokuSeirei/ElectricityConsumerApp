@@ -1,0 +1,5 @@
+CREATE TABLE [ElectricMeterType]
+(
+	[ID] INT PRIMARY KEY IDENTITY,
+	[Name] NVARCHAR (50)
+)
