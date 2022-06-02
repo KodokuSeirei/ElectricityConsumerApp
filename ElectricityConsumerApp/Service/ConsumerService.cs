@@ -11,15 +11,18 @@ namespace ElectricityConsumerApp.Service
         public static DataSet GetAllConsumersDataSet()
         {
             string query =
-                @"SELECT [Consumer].[ID], [LastName], [FirstName], [Patronymic], [ElectricMeterNumbers], 
-                CONCAT([fs_region].name, ', ', [fs_city].[name], ', ул.', [Street], ', дом ', [Home], ', кв ', [Fiat]) AS [Address] FROM [Consumer] 
-                LEFT JOIN(SELECT[ConsumerID],
-                           STRING_AGG([Number], '; ') AS [ElectricMeterNumbers]
-                           FROM [ElectricMeter] LEFT JOIN [ConsumerElectricMeterBinding] ON [Number] = [ElectricMeterNumber] GROUP BY[ConsumerID]) as [ElectricMeter]
-                           ON [Consumer].[ID] = [ElectricMeter].[ConsumerID]
+                @"SELECT [Consumer].[ID], [LastName], [FirstName], [Patronymic], [ElectricMeterNumber], 
+                CONCAT([fs_region].[name], ', ', [fs_city].[name], ', ул.', [Street], ', дом ', [Home], ', кв ', [Fiat]) AS [Address] FROM [Consumer] 
 				LEFT JOIN [AddressesDirectory] ON [AddressID] = [AddressesDirectory].[ID]
 				LEFT JOIN [fs_city] ON [CityID] = [fs_city].[id]
-				LEFT JOIN [fs_region] ON [id_region] = [fs_region].[id]";
+				LEFT JOIN [fs_region] ON [id_region] = [fs_region].[id]
+                CROSS APPLY
+				(
+					SELECT CONCAT([ElectricMeterNumber], '; ')
+					FROM [ConsumerElectricMeterBinding]
+					WHERE [ConsumerElectricMeterBinding].[ConsumerID] = [Consumer].[ID]
+					FOR XML PATH('')
+				) C ([ElectricMeterNumber]);";
 
             DataSet dataSet = DBService.ExecuteDataSet(query);
             return dataSet;
@@ -28,15 +31,18 @@ namespace ElectricityConsumerApp.Service
         public static DataSet GetConsumersDataSetByLastName(string lastName)
         {
             string query =
-                $@"SELECT [Consumer].[ID], [LastName], [FirstName], [Patronymic], [ElectricMeterNumbers], 
+                $@"SELECT [Consumer].[ID], [LastName], [FirstName], [Patronymic], [ElectricMeterNumber], 
                 CONCAT([fs_region].name, ', ', [fs_city].[name], ', ул.', [Street], ', дом ', [Home], ', кв ', [Fiat]) AS [Address] FROM [Consumer] 
-                LEFT JOIN(SELECT[ConsumerID],
-                           STRING_AGG([Number], '; ') AS [ElectricMeterNumbers]
-                           FROM [ElectricMeter] LEFT JOIN [ConsumerElectricMeterBinding] ON [Number] = [ElectricMeterNumber] GROUP BY[ConsumerID]) as [ElectricMeter]
-                           ON [Consumer].[ID] = [ElectricMeter].[ConsumerID]
 				LEFT JOIN [AddressesDirectory] ON [AddressID] = [AddressesDirectory].[ID]
 				LEFT JOIN [fs_city] ON [CityID] = [fs_city].[id]
 				LEFT JOIN [fs_region] ON [id_region] = [fs_region].[id]
+                CROSS APPLY
+				(
+					SELECT CONCAT([ElectricMeterNumber], '; ')
+					FROM [ConsumerElectricMeterBinding]
+					WHERE [ConsumerElectricMeterBinding].[ConsumerID] = [Consumer].[ID]
+					FOR XML PATH('')
+				) C ([ElectricMeterNumber])
                 WHERE [LastName] = '{lastName}'";
 
             DataSet dataSet = DBService.ExecuteDataSet(query);
@@ -54,7 +60,7 @@ namespace ElectricityConsumerApp.Service
                     LastName = Convert.ToString(row["LastName"] ?? String.Empty),
                     FirstName = Convert.ToString(row["FirstName"] ?? String.Empty),
                     Patronymic = Convert.ToString(row["Patronymic"] ?? String.Empty),
-                    ElectricMeterNumbers = Convert.ToString(row["ElectricMeterNumbers"] ?? String.Empty),
+                    ElectricMeterNumbers = Convert.ToString(row["ElectricMeterNumber"] ?? String.Empty),
                     AddressID = Convert.ToInt32(row["AddressID"] ?? 0),
                 };
             }
@@ -65,11 +71,14 @@ namespace ElectricityConsumerApp.Service
 
         public static Consumer GetConsumer(int consumerID)
         {
-            string query = $@"SELECT [Consumer].[ID], [LastName], [FirstName], [Patronymic], [ElectricMeterNumbers], [AddressID] FROM [Consumer] 
-                LEFT JOIN(SELECT[ConsumerID],
-                           STRING_AGG([Number], '; ') AS [ElectricMeterNumbers]
-                           FROM [ElectricMeter] LEFT JOIN [ConsumerElectricMeterBinding] ON [Number] = [ElectricMeterNumber] GROUP BY[ConsumerID]) as [ElectricMeter]
-                           ON [Consumer].[ID] = [ElectricMeter].[ConsumerID]
+            string query = $@"SELECT [Consumer].[ID], [LastName], [FirstName], [Patronymic], [ElectricMeterNumber], [AddressID] FROM [Consumer] 
+               CROSS APPLY
+				(
+					SELECT CONCAT([ElectricMeterNumber], '; ')
+					FROM [ConsumerElectricMeterBinding]
+					WHERE [ConsumerElectricMeterBinding].[ConsumerID] = [Consumer].[ID]
+					FOR XML PATH('')
+				) C ([ElectricMeterNumber]) 
                 WHERE [Consumer].[ID] = {consumerID}";
 
             return ConsumerReaderFromDataSet(DBService.ExecuteDataSet(query));
